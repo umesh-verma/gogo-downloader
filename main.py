@@ -1,6 +1,19 @@
 #make request to the api and return the response
-##TODO : remove pytz, tzdata, six, numpy, python-dateutil,tabulate pandas from requirements.txt
-##TODO : fix the episode list/selection function
+#TODO : remove pytz, tzdata, six, numpy, python-dateutil,tabulate pandas from requirements.txt
+#TODO : add functionality to continue watching next episode
+#TODO : add functionality to search for anime by genre
+#TODO : add functionality to search for anime by year
+#TODO: add functionality to create vlc playlist
+#TODO: add functionality to download anime
+#TODO: add functionality to download anime by episode
+#TODO : add functionality to download anime by range of episodes
+#TODO : add functionality to download anime by quality
+#TODO : add functionality to download anime by quality and range of episodes
+#TODO : add functinality to start download via idm
+#TODO : add functionality to start download via aria2c
+#TODO : add functionality to start watching from last watched episode
+#TODO : add filler indicator next to episode number
+#https://github.com/mpv-player/mpv/issues/4184
 
 import json
 import requests
@@ -9,6 +22,7 @@ from dotenv import load_dotenv
 from pandas import DataFrame
 from tabulate import tabulate
 from subprocess import Popen
+import sys
 
 
 load_dotenv()
@@ -55,7 +69,7 @@ def select_episode(anime):
     episodes = get_anime_episodes(anime)
     episodes = sorted(episodes, key=lambda episode: float(episode[0]))
     df =(DataFrame(episodes, columns=['Episode', 'EpisodeId']))
-    print(tabulate(df,showindex=True, headers=df.columns))
+    print(tabulate(df,showindex=False, headers=df.columns))
     selected_episode = int(input('select Episode:'))
     episode_id = episodes[selected_episode-1][1]
     return episode_id
@@ -87,10 +101,14 @@ def get_streaming_link(episode):
 # print(stream_link)
 
 def main():
-    anime = select_anime()
-    episode = select_episode(anime)
-    streaming_link = get_streaming_link(episode)
+    # print(len(sys.argv))
+    if len(sys.argv) == 1:
+        anime = select_anime()
+        episode = select_episode(anime)
+        streaming_link = get_streaming_link(episode)
+    if len(sys.argv) > 1:
+        streaming_link = get_streaming_link(sys.argv[1])
     Popen('mpv %s' %streaming_link,  shell=False)
     
-
-main()
+if __name__ == '__main__':
+    main()
